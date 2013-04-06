@@ -1,6 +1,19 @@
 @startuml
 
-' frameworks/av/camera 下有如下一些类
+package frameworks.av.libcameraservice {
+class CameraService {
+}
+class CameraClient {
+}
+class Camera2Client {
+}
+class Camera2Device {
+}
+class CameraHardwareInterface {
+}
+'TODO : many classes in camera2 dir
+}
+
 
 package frameworks.av.camera {
 
