@@ -1,0 +1,37 @@
+@startuml
+
+title Open Camera 流程
+
+'skin BlueModern
+
+
+CameraApp -> hardware.Camera  : open
+hardware.Camera -> hardware.Camera : ctor
+hardware.Camera -> jni.Camera : native_setup
+jni.Camera -> Camera : connect
+Camera -> Camera : ctor
+Camera -> CameraService : connect(跨进程)
+
+alt HAL_1.0
+CameraService -> CameraClient : ctor
+else HAL_2.0
+CameraService -> Camera2Client : ctor
+end
+
+CameraService --> Camera : CameraClient
+Camera --> jni.Camera : Camera
+
+jni.Camera -> JNICameraContext : ctor
+jni.Camera <-- JNICameraContext : JNICameraContext
+
+jni.Camera --> hardware.Camera : JNICameraContext
+
+hardware.Camera --> CameraApp : hardware.Camera
+
+box "Camera Service" #LightBlue
+    participant CameraService
+    participant CameraClient
+    participant Camera2Client
+end box
+
+@enduml

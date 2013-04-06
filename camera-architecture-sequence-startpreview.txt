@@ -1,0 +1,23 @@
+@startuml
+
+title Camera startPreview 流程
+
+
+
+skin BlueModern
+
+CameraApp -> hardware.Camera  : startPreview
+hardware.Camera -> jni.Camera : startPreview
+jni.Camera -> Camera : startPreview
+Camera -> CameraClient : startPreview(跨进程)
+CameraClient -> CameraHardwareInterface : setPreviewWindow
+CameraClient -> CameraHardwareInterface : startPreview
+CameraHardwareInterface -> camera_device : start_preview
+
+box "Camera Service" #LightBlue
+    participant CameraClient
+    participant CameraHardwareInterface
+    participant camera_device
+end box
+
+@enduml

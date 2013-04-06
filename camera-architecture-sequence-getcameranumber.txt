@@ -1,0 +1,68 @@
+@startuml
+
+title 获得 Camera 个数的流程\n包含Binder通信流程
+
+'skin BlueModern
+
+hardware.Camera -> jni.Camera : getNumberOfCameras
+activate jni.Camera
+
+note right of Camera #aqua
+Camera类实现了创建Camera和
+提供Camera服务的具体方法
+end note
+
+jni.Camera -> Camera : getNumberOfCameras
+activate Camera
+
+Camera -> ServiceManager : getService("media.camera")
+activate ServiceManager
+note right of Camera
+    获得 com.android.ICameraService接口
+end note
+
+ServiceManager --> Camera : binder
+deactivate ServiceManager 
+
+note over BnCameraService
+服务启动后,就会有一个Binder线程一直在运行
+收到Binder消息后，调用onTransact处理
+end note
+
+Camera -> BpCameraService : getNumberOfCameras
+activate BpCameraService
+
+BpCameraService -> Binder : transact(GET_NUMBER_OF_CAMERAS)
+activate Binder
+
+Binder --> BnCameraService : onTransact(GET_NUMBER_OF_CAMERAS)
+activate BnCameraService
+
+BnCameraService -> CameraService : getNumberOfCameras
+activate CameraService
+
+CameraService --> BnCameraService : camera number
+deactivate CameraService
+
+BnCameraService --> Binder : camera number
+deactivate BnCameraService
+
+Binder --> BpCameraService : camera number
+deactivate Binder
+
+BpCameraService --> Camera : camera number
+deactivate BpCameraService
+
+Camera --> jni.Camera : camera number
+deactivate Camera
+
+jni.Camera --> hardware.Camera : camera number
+deactivate jni.Camera
+
+box "Camera Service" #LightBlue
+    participant BnCameraService
+    participant CameraService
+end box
+
+
+@enduml

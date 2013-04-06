@@ -1,0 +1,140 @@
+@startuml
+
+' frameworks/av/camera 下有如下一些类
+
+package frameworks.av.camera {
+
+interface CameraListener {
+    + {abstract} notify()
+    + {abstract} postData()
+    + {abstract} postDataTimestamp()
+}
+
+interface ICameraService {
+    +getNumberOfCameras()
+    +getCameraInfo()
+    +connect(ICameraClient, cameraId)
+}
+note left: 创建Camera服务接口
+
+interface ICameraRecordingProxy {
+    + {abstract} startRecording(ICameraRecordingProxyListener)
+    + {abstract} stopRecording()
+    + {abstract} releaseRecordingFrame()
+}
+
+interface ICameraRecordingProxyListener {
+    + {abstract} dataCallbackTimestamp()
+}
+
+class BnCameraRecordingProxyListener {
+}
+
+class BnCameraService {
+}
+
+interface ICamera {
+    + connect()
+    + disconnect()
+    + startPreview()
+}
+note left: Camera功能服务接口
+
+
+' in ICamera.cpp
+class BpCamera {
+}
+
+' in ICameraClient.cpp
+class BpCameraClient {
+}
+
+class BpCameraRecordingProxy {
+    + startRecording()
+    + stopRecording()
+    + releaseRecordingFrame()
+}
+
+class BpCameraRecordingProxyListener {
+    + dataCallbackTimestamp()
+}
+
+interface ICameraClient {
+    +notifyCallback()
+    +dataCallback()
+    +dataCallbackTimestamp()
+}
+note left : Camera客户端的回调接口
+
+class Camera {
+    + {static} create(ICamera)
+    + {static} getNumberOfCameras()
+    + {static} connect(cameraId)
+    + startPreview()
+}
+note left #aqua
+Camera类在Camera.cpp中
+实现了创建Camera
+和提供Camera服务的方法
+end note
+
+class RecordingProxy {
+    + {abstract} startRecording()
+    + {abstract} stopRecording()
+}
+
+ICamera <|-- BpCamera
+ICameraService <|-- BpCameraService
+ICameraClient <|-- BpCameraClient
+ICameraRecordingProxy <|-- BpCameraRecordingProxy
+ICameraRecordingProxyListener <|-- BpCameraRecordingProxyListener
+
+ICamera <|-- BnCamera
+ICameraService <|-- BnCameraService
+ICameraClient <|-- BnCameraClient
+ICameraRecordingProxy <|-- BnCameraRecordingProxy
+ICameraRecordingProxyListener <|-- BnCameraRecordingProxyListener
+
+
+BnCamera <|-- CameraService_Client
+CameraService_Client <|-- CameraClient
+CameraService_Client <|-- Camera2Client
+
+BnCameraService <|-- CameraService
+
+BnCameraRecordingProxy <|-- RecordingProxy
+ 
+BnCameraClient <|-- Camera
+
+
+'Camera -> ICameraService
+'Camera -> CameraClient
+
+hide ICameraRecordingProxy
+hide BnCameraRecordingProxy
+hide RecordingProxy
+hide BpCameraRecordingProxy
+hide ICameraRecordingProxyListener
+hide BnCameraRecordingProxyListener
+hide BpCameraRecordingProxyListener
+
+}
+
+package frameworks.jni.camera {
+class JNICameraContext {
+}
+CameraListener <|-- JNICameraContext
+
+}
+
+package media.libstagefright {
+
+class CameraSourceListener {
+}
+
+'./media/libstagefright/CameraSource.cpp
+CameraListener <|-- CameraSourceListener
+
+}
+
+@enduml
